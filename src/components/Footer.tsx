@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-stone-500">
-          <div className="flex items-center gap-3">
+          <div>
             <p 
               onClick={handleSecretTrigger}
               className="cursor-default select-none"
@@ -73,13 +73,6 @@ export const Footer: React.FC = () => {
             >
               © {new Date().getFullYear()} {content.business.brandName}. Semua hak cipta dilindungi.
             </p>
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-amber-400 text-[10px] transition-colors border border-stone-800"
-              title="Buka Panel Admin / Pemilik"
-            >
-              <span>Panel Pemilik</span>
-            </button>
           </div>
           <div>
             <span>

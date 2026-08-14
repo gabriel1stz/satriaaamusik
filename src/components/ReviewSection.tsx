@@ -16,7 +16,7 @@ import { useSite } from '../context/SiteContext';
 import { ReviewItem } from '../types';
 
 export const ReviewSection: React.FC = () => {
-  const { content, addReview, setIsAdminOpen } = useSite();
+  const { content, addReview } = useSite();
   const [filterCategory, setFilterCategory] = useState<'all' | 'studio' | 'box_speaker'>('all');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -237,18 +237,9 @@ export const ReviewSection: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="text-xs text-stone-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>Semua ulasan asli & transparan</span>
-            </div>
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="text-[11px] font-semibold text-stone-400 hover:text-amber-400 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-950 border border-stone-800 hover:border-amber-500/30 transition-all cursor-pointer"
-              title="Buka panel admin untuk melihat, menyunting, dan menghapus ulasan"
-            >
-              <span>⚙️ Panel Admin Ulasan</span>
-            </button>
+          <div className="flex items-center gap-1.5 text-xs text-stone-400">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <span>Semua ulasan asli & transparan</span>
           </div>
         </div>
 
