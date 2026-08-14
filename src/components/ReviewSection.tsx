@@ -16,8 +16,9 @@ import { useSite } from '../context/SiteContext';
 import { ReviewItem } from '../types';
 
 export const ReviewSection: React.FC = () => {
-  const { content, addReview } = useSite();
+  const { content, addReview, setIsAdminOpen } = useSite();
   const [filterCategory, setFilterCategory] = useState<'all' | 'studio' | 'box_speaker'>('all');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submittedToast, setSubmittedToast] = useState(false);
 
@@ -166,18 +167,38 @@ export const ReviewSection: React.FC = () => {
             {/* Right: CTA Button to Give Rating */}
             <div className="md:col-span-4 flex flex-col sm:flex-row md:flex-col justify-center items-stretch md:items-end gap-3">
               <button
-                onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all cursor-pointer group"
+                onClick={() => {
+                  setReviewRating(5);
+                  setIsModalOpen(true);
+                }}
+                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-extrabold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all cursor-pointer group"
               >
-                <Star className="w-4 h-4 fill-stone-950 group-hover:rotate-12 transition-transform" />
-                <span>Beri Ulasan & Bintang 5</span>
+                <Star className="w-5 h-5 fill-stone-950 group-hover:rotate-12 transition-transform" />
+                <span>★ Beri Bintang 5 Sekarang!</span>
               </button>
-              <p className="text-[11px] text-stone-400 text-center md:text-right">
-                Pernah latihan atau pesan box? Bagikan ulasan Anda!
-              </p>
+              
+              {/* Fast Star Rating Clicker */}
+              <div className="flex items-center justify-center md:justify-end gap-1 text-amber-400">
+                <span className="text-[11px] text-stone-400 mr-1.5 font-medium">Klik bintang:</span>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => {
+                      setReviewRating(star);
+                      setIsModalOpen(true);
+                    }}
+                    className="p-1 hover:scale-125 transition-transform cursor-pointer"
+                    title={`Beri rating ${star} bintang`}
+                  >
+                    <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+
 
         {/* Filter Pills */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
@@ -216,11 +237,21 @@ export const ReviewSection: React.FC = () => {
             </button>
           </div>
 
-          <div className="text-xs text-stone-400 flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>Semua ulasan asli & transparan</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="text-xs text-stone-400 flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Semua ulasan asli & transparan</span>
+            </div>
+            <button
+              onClick={() => setIsAdminOpen(true)}
+              className="text-[11px] font-semibold text-stone-400 hover:text-amber-400 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-950 border border-stone-800 hover:border-amber-500/30 transition-all cursor-pointer"
+              title="Buka panel admin untuk melihat, menyunting, dan menghapus ulasan"
+            >
+              <span>⚙️ Panel Admin Ulasan</span>
+            </button>
           </div>
         </div>
+
 
         {/* Reviews Grid */}
         {filteredReviews.length === 0 ? (
