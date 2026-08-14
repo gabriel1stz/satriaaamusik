@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://satria-musik.vercel.app/sitemap.xml
+Sitemap: https://satriaaudio.my.id/sitemap.xml
+
