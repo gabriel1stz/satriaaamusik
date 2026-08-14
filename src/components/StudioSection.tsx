@@ -30,10 +30,9 @@ export const StudioSection: React.FC = () => {
           <div className="lg:col-span-5 order-2 lg:order-1">
             <div className="relative rounded-2xl overflow-hidden shadow-xl border border-stone-800 aspect-[4/3] sm:aspect-square bg-stone-950">
               <img
-                src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?auto=format&fit=crop&w=1000&q=80"
+                src="/images/studio-real-1.jpg"
                 alt="Fasilitas Studio Satria Musik"
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
                 <h3 className="font-bold text-xl text-white">

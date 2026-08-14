@@ -86,10 +86,9 @@ export const Hero: React.FC = () => {
           <div className="lg:col-span-5">
             <div className="relative rounded-2xl overflow-hidden border border-stone-800 shadow-xl bg-stone-900 aspect-[4/3] sm:aspect-square">
               <img
-                src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80"
+                src="/images/studio-hero.jpg"
                 alt="Satria Musik Studio & Custom Box"
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/20 to-transparent flex flex-col justify-end p-6">
                 <h3 className="text-white font-bold text-xl">

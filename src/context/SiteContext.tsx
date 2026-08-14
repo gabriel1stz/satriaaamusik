@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { SiteContent, GalleryItem, FacilityItem, BoxTypeItem } from '../types';
 import { initialSiteContent } from '../data';
 
-const STORAGE_KEY = 'satria_audio_site_content_v3';
+const STORAGE_KEY = 'satria_audio_site_content_v7';
 const PIN_STORAGE_KEY = 'satria_audio_admin_pin_v3';
 const DEFAULT_PIN = '0410';
 

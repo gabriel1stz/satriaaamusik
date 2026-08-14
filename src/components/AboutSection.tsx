@@ -17,10 +17,9 @@ export const AboutSection: React.FC = () => {
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-2xl overflow-hidden shadow-xl border border-stone-800 aspect-[4/5] bg-stone-900">
               <img
-                src="https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=1000&q=80"
-                alt="Workshop Pak Aris Satria"
+                src={content.about.ownerImageUrl || '/images/box-custom-3.jpg'}
+                alt={`Workshop ${content.business.ownerName}`}
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/30 to-transparent flex flex-col justify-end p-6 text-white space-y-1">
                 <h3 className="font-extrabold text-2xl text-white">

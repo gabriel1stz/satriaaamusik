@@ -55,6 +55,7 @@ export interface SiteContent {
     title: string;
     p1: string;
     p2: string;
+    ownerImageUrl?: string;
   };
   gallery: GalleryItem[];
 }
