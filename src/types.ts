@@ -6,6 +6,17 @@ export interface GalleryItem {
   caption: string;
 }
 
+export interface ReviewItem {
+  id: string;
+  customerName: string;
+  roleOrBand?: string;
+  category: 'studio' | 'box_speaker';
+  rating: number; // 1 to 5
+  date: string;
+  comment: string;
+  isVerified?: boolean;
+}
+
 export interface FacilityItem {
   id: string;
   title: string;
@@ -58,4 +69,6 @@ export interface SiteContent {
     ownerImageUrl?: string;
   };
   gallery: GalleryItem[];
+  reviews: ReviewItem[];
 }
+

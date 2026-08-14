@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { SiteContent, GalleryItem, FacilityItem, BoxTypeItem } from '../types';
+import { SiteContent, GalleryItem, ReviewItem, FacilityItem, BoxTypeItem } from '../types';
 import { initialSiteContent } from '../data';
 
-const STORAGE_KEY = 'satria_audio_site_content_v7';
+const STORAGE_KEY = 'satria_audio_site_content_v9';
 const PIN_STORAGE_KEY = 'satria_audio_admin_pin_v3';
 const DEFAULT_PIN = '0410';
 
@@ -16,6 +16,10 @@ interface SiteContextType {
   addGalleryItem: (item: Omit<GalleryItem, 'id'>) => void;
   updateGalleryItem: (id: string, updated: Partial<GalleryItem>) => void;
   deleteGalleryItem: (id: string) => void;
+  addReview: (item: Omit<ReviewItem, 'id'>) => void;
+  updateReview: (id: string, updated: Partial<ReviewItem>) => void;
+  deleteReview: (id: string) => void;
+  updateReviews: (reviews: ReviewItem[]) => void;
   resetToDefault: () => void;
   // Auth state
   isAdminOpen: boolean;
@@ -32,15 +36,33 @@ const SiteContext = createContext<SiteContextType | undefined>(undefined);
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [content, setContent] = useState<SiteContent>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      // Check current or previous version storage keys
+      const saved =
+        localStorage.getItem(STORAGE_KEY) ||
+        localStorage.getItem('satria_audio_site_content_v8') ||
+        localStorage.getItem('satria_audio_site_content_v7');
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return {
+          ...initialSiteContent,
+          ...parsed,
+          business: {
+            ...initialSiteContent.business,
+            ...(parsed.business || {}),
+            studioMapsUrl: initialSiteContent.business.studioMapsUrl,
+            workshopMapsUrl: initialSiteContent.business.workshopMapsUrl,
+          },
+          reviews: Array.isArray(parsed.reviews) && parsed.reviews.length > 0
+            ? parsed.reviews
+            : initialSiteContent.reviews,
+        };
       }
     } catch {
       // ignore
     }
     return initialSiteContent;
   });
+
 
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -200,9 +222,42 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
+  const addReview = (item: Omit<ReviewItem, 'id'>) => {
+    const newReview: ReviewItem = {
+      ...item,
+      id: 'rev_' + Date.now(),
+    };
+    setContent((prev) => ({
+      ...prev,
+      reviews: [newReview, ...prev.reviews],
+    }));
+  };
+
+  const updateReview = (id: string, updated: Partial<ReviewItem>) => {
+    setContent((prev) => ({
+      ...prev,
+      reviews: prev.reviews.map((r) => (r.id === id ? { ...r, ...updated } : r)),
+    }));
+  };
+
+  const deleteReview = (id: string) => {
+    setContent((prev) => ({
+      ...prev,
+      reviews: prev.reviews.filter((r) => r.id !== id),
+    }));
+  };
+
+  const updateReviews = (reviews: ReviewItem[]) => {
+    setContent((prev) => ({
+      ...prev,
+      reviews,
+    }));
+  };
+
   const resetToDefault = () => {
     setContent(initialSiteContent);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('satria_audio_site_content_v7');
   };
 
   return (
@@ -217,6 +272,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addGalleryItem,
         updateGalleryItem,
         deleteGalleryItem,
+        addReview,
+        updateReview,
+        deleteReview,
+        updateReviews,
         resetToDefault,
         isAdminOpen,
         setIsAdminOpen,
@@ -239,3 +298,4 @@ export const useSite = () => {
   }
   return context;
 };
+

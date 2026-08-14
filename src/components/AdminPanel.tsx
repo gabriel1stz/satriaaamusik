@@ -17,9 +17,13 @@ import {
   Info,
   Shield,
   Upload,
+  Star,
+  Edit3,
+  MessageSquare,
+  CheckCircle2,
 } from 'lucide-react';
 import { useSite } from '../context/SiteContext';
-import { GalleryItem } from '../types';
+import { GalleryItem, ReviewItem } from '../types';
 
 export const AdminPanel: React.FC = () => {
   const {
@@ -32,6 +36,9 @@ export const AdminPanel: React.FC = () => {
     addGalleryItem,
     updateGalleryItem,
     deleteGalleryItem,
+    addReview,
+    updateReview,
+    deleteReview,
     resetToDefault,
     isAdminOpen,
     setIsAdminOpen,
@@ -42,9 +49,9 @@ export const AdminPanel: React.FC = () => {
     lockoutRemaining,
   } = useSite();
 
-  const [activeTab, setActiveTab] = useState<'business' | 'hero_studio' | 'box' | 'gallery' | 'security'>(
-    'business'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'business' | 'hero_studio' | 'box' | 'gallery' | 'reviews' | 'security'
+  >('business');
 
   // Login form state
   const [pinInput, setPinInput] = useState('');
@@ -64,12 +71,32 @@ export const AdminPanel: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
 
+  // Reviews Admin State: Add Form
+  const [newRevName, setNewRevName] = useState('');
+  const [newRevRole, setNewRevRole] = useState('');
+  const [newRevCategory, setNewRevCategory] = useState<'studio' | 'box_speaker'>('studio');
+  const [newRevRating, setNewRevRating] = useState<number>(5);
+  const [newRevDate, setNewRevDate] = useState('');
+  const [newRevComment, setNewRevComment] = useState('');
+  const [newRevVerified, setNewRevVerified] = useState(true);
+
+  // Reviews Admin State: Edit Modal
+  const [editingReview, setEditingReview] = useState<ReviewItem | null>(null);
+  const [editRevName, setEditRevName] = useState('');
+  const [editRevRole, setEditRevRole] = useState('');
+  const [editRevCategory, setEditRevCategory] = useState<'studio' | 'box_speaker'>('studio');
+  const [editRevRating, setEditRevRating] = useState<number>(5);
+  const [editRevDate, setEditRevDate] = useState('');
+  const [editRevComment, setEditRevComment] = useState('');
+  const [editRevVerified, setEditRevVerified] = useState(true);
+
   // Editable copies of state
   const [businessDraft, setBusinessDraft] = useState(content.business);
   const [heroDraft, setHeroDraft] = useState(content.hero);
   const [studioDraft, setStudioDraft] = useState(content.studio);
   const [boxDraft, setBoxDraft] = useState(content.boxSpeaker);
   const [aboutDraft, setAboutDraft] = useState(content.about);
+
 
   if (!isAdminOpen) return null;
 
@@ -147,6 +174,79 @@ export const AdminPanel: React.FC = () => {
     showSuccessNotice('Foto baru berhasil ditambahkan ke galeri!');
   };
 
+  const handleAddReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRevName.trim() || !newRevComment.trim()) {
+      alert('Mohon isi nama customer dan ulasan terlebih dahulu.');
+      return;
+    }
+
+    const dateStr =
+      newRevDate.trim() ||
+      new Intl.DateTimeFormat('id-ID', {
+        month: 'long',
+        year: 'numeric',
+      }).format(new Date());
+
+    addReview({
+      customerName: newRevName.trim(),
+      roleOrBand: newRevRole.trim() || (newRevCategory === 'studio' ? 'Musisi / Band' : 'Pelanggan Box'),
+      category: newRevCategory,
+      rating: Number(newRevRating) || 5,
+      date: dateStr,
+      comment: newRevComment.trim(),
+      isVerified: newRevVerified,
+    });
+
+    setNewRevName('');
+    setNewRevRole('');
+    setNewRevComment('');
+    setNewRevDate('');
+    setNewRevRating(5);
+    setNewRevVerified(true);
+    showSuccessNotice('Ulasan pelanggan berhasil ditambahkan!');
+  };
+
+  const handleStartEditReview = (item: ReviewItem) => {
+    setEditingReview(item);
+    setEditRevName(item.customerName);
+    setEditRevRole(item.roleOrBand || '');
+    setEditRevCategory(item.category);
+    setEditRevRating(item.rating || 5);
+    setEditRevDate(item.date || '');
+    setEditRevComment(item.comment);
+    setEditRevVerified(item.isVerified !== false);
+  };
+
+  const handleSaveEditReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingReview) return;
+    if (!editRevName.trim() || !editRevComment.trim()) {
+      alert('Nama dan ulasan tidak boleh kosong.');
+      return;
+    }
+
+    updateReview(editingReview.id, {
+      customerName: editRevName.trim(),
+      roleOrBand: editRevRole.trim(),
+      category: editRevCategory,
+      rating: Number(editRevRating) || 5,
+      date: editRevDate.trim() || editingReview.date,
+      comment: editRevComment.trim(),
+      isVerified: editRevVerified,
+    });
+
+    setEditingReview(null);
+    showSuccessNotice('Ulasan pelanggan berhasil diperbarui!');
+  };
+
+  const handleDeleteReview = (id: string, name: string) => {
+    if (window.confirm(`Yakin ingin menghapus ulasan dari "${name}"?`)) {
+      deleteReview(id);
+      showSuccessNotice('Ulasan berhasil dihapus.');
+    }
+  };
+
   const handleSaveBusiness = (e: React.FormEvent) => {
     e.preventDefault();
     updateBusiness(businessDraft);
@@ -183,6 +283,7 @@ export const AdminPanel: React.FC = () => {
       showSuccessNotice('Data website telah dikembalikan ke awal.');
     }
   };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/80 backdrop-blur-sm p-4 overflow-y-auto">
@@ -342,6 +443,18 @@ export const AdminPanel: React.FC = () => {
               >
                 <ImageIcon className="w-4 h-4 shrink-0" />
                 <span>Galeri Foto</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('reviews')}
+                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-left whitespace-nowrap cursor-pointer ${
+                  activeTab === 'reviews'
+                    ? 'bg-amber-500 text-stone-950'
+                    : 'text-stone-400 hover:text-white hover:bg-stone-900'
+                }`}
+              >
+                <Star className="w-4 h-4 shrink-0" />
+                <span>Ulasan ({content.reviews?.length || 0})</span>
               </button>
 
               <button
@@ -933,7 +1046,229 @@ export const AdminPanel: React.FC = () => {
                 </div>
               )}
 
-              {/* TAB 5: SECURITY & RESET */}
+              {/* TAB 5: REVIEWS & RATINGS MANAGER */}
+              {activeTab === 'reviews' && (
+                <div className="space-y-6">
+                  <div className="border-b border-stone-800 pb-3">
+                    <h3 className="font-bold text-base text-white">Kelola Ulasan & Rating Bintang 5</h3>
+                    <p className="text-xs text-stone-400">
+                      Tambah testimoni baru, edit siapa saja yang memberi review, ubah rating bintang (1-5), atau ubah isi komentar.
+                    </p>
+                  </div>
+
+                  {/* Add New Review Form */}
+                  <form
+                    onSubmit={handleAddReview}
+                    className="p-4 rounded-2xl bg-stone-950 border border-stone-800 space-y-4"
+                  >
+                    <h4 className="font-bold text-xs text-amber-400 flex items-center gap-2">
+                      <Plus className="w-4 h-4" />
+                      <span>Tambah Ulasan / Testimoni Baru</span>
+                    </h4>
+
+                    {/* Star Rating Picker */}
+                    <div className="p-3 rounded-xl bg-stone-900 border border-stone-800 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <span className="text-xs font-bold text-stone-200 block">Rating Bintang:</span>
+                        <span className="text-[11px] text-amber-400 font-semibold">
+                          {newRevRating} dari 5 Bintang Sempurna
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            type="button"
+                            key={star}
+                            onClick={() => setNewRevRating(star)}
+                            className="p-1 cursor-pointer hover:scale-125 transition-transform"
+                          >
+                            <Star
+                              className={`w-6 h-6 ${
+                                star <= newRevRating
+                                  ? 'fill-amber-400 text-amber-400'
+                                  : 'text-stone-700'
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-stone-300 font-medium mb-1">
+                          Nama Pengirim Review (Customer) <span className="text-amber-400">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={newRevName}
+                          onChange={(e) => setNewRevName(e.target.value)}
+                          placeholder="Cth: Rian Pratama"
+                          className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-stone-300 font-medium mb-1">
+                          Profesi / Band / Usaha
+                        </label>
+                        <input
+                          type="text"
+                          value={newRevRole}
+                          onChange={(e) => setNewRevRole(e.target.value)}
+                          placeholder="Cth: Gitaris Band / Rental Sound"
+                          className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-stone-300 font-medium mb-1">
+                          Kategori Layanan
+                        </label>
+                        <select
+                          value={newRevCategory}
+                          onChange={(e) =>
+                            setNewRevCategory(e.target.value as 'studio' | 'box_speaker')
+                          }
+                          className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
+                        >
+                          <option value="studio">Studio Musik</option>
+                          <option value="box_speaker">Custom Box Speaker</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-stone-300 font-medium mb-1">
+                          Tanggal Ulasan
+                        </label>
+                        <input
+                          type="text"
+                          value={newRevDate}
+                          onChange={(e) => setNewRevDate(e.target.value)}
+                          placeholder="Cth: Agustus 2024 (Kosongkan utk hari ini)"
+                          className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-stone-300 font-medium mb-1">
+                        Isi Ulasan / Testimoni <span className="text-amber-400">*</span>
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={newRevComment}
+                        onChange={(e) => setNewRevComment(e.target.value)}
+                        placeholder="Tulis ulasan customer seputar kenyamanan studio atau kualitas box speaker..."
+                        className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                        required
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="verified-check"
+                        checked={newRevVerified}
+                        onChange={(e) => setNewRevVerified(e.target.checked)}
+                        className="rounded border-stone-700 text-amber-500 focus:ring-amber-500"
+                      />
+                      <label htmlFor="verified-check" className="text-xs text-stone-300 cursor-pointer">
+                        Tandai sebagai Pelanggan Terverifikasi (Badge Centang Biru/Hijau)
+                      </label>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center gap-2 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Tambahkan Ulasan</span>
+                    </button>
+                  </form>
+
+                  {/* List of Existing Reviews with Edit and Delete options */}
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-xs text-stone-300">
+                      Daftar Ulasan Saat Ini ({content.reviews?.length || 0} ulasan)
+                    </h4>
+
+                    <div className="space-y-3">
+                      {(content.reviews || []).map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-4 rounded-xl bg-stone-950 border border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                        >
+                          <div className="space-y-1.5 flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-bold text-xs text-white">{item.customerName}</span>
+                              {item.roleOrBand && (
+                                <span className="text-[11px] text-stone-400">({item.roleOrBand})</span>
+                              )}
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  item.category === 'studio'
+                                    ? 'bg-amber-500/10 text-amber-400'
+                                    : 'bg-cyan-500/10 text-cyan-400'
+                                }`}
+                              >
+                                {item.category === 'studio' ? 'Studio' : 'Box Speaker'}
+                              </span>
+                              {item.isVerified !== false && (
+                                <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
+                                  <CheckCircle2 className="w-3 h-3" /> Terverifikasi
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1 text-amber-400">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-3.5 h-3.5 ${
+                                    i < item.rating
+                                      ? 'fill-amber-400 text-amber-400'
+                                      : 'fill-stone-800 text-stone-700'
+                                  }`}
+                                />
+                              ))}
+                              <span className="text-[10px] text-stone-400 ml-1.5">{item.date}</span>
+                            </div>
+
+                            <p className="text-xs text-stone-300 line-clamp-2 italic">
+                              "{item.comment}"
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleStartEditReview(item)}
+                              className="px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-amber-400 hover:text-amber-300 border border-stone-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                              title="Edit Pengirim & Ulasan"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Edit</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteReview(item.id, item.customerName)}
+                              className="p-1.5 rounded-lg text-stone-500 hover:text-red-400 hover:bg-stone-900 border border-transparent hover:border-red-900 transition-colors cursor-pointer"
+                              title="Hapus Ulasan"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 6: SECURITY & RESET */}
               {activeTab === 'security' && (
                 <div className="space-y-8 max-w-xl">
                   {/* Change PIN Form */}
@@ -953,7 +1288,7 @@ export const AdminPanel: React.FC = () => {
                         type="password"
                         value={oldPin}
                         onChange={(e) => setOldPin(e.target.value)}
-                        placeholder="PIN lama (default: 1234)"
+                        placeholder="PIN lama (default: 0410)"
                         className="w-full px-3.5 py-2 rounded-xl bg-stone-950 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
                         required
                       />
@@ -1001,7 +1336,7 @@ export const AdminPanel: React.FC = () => {
                   <div className="pt-6 border-t border-stone-800 space-y-3">
                     <h4 className="font-bold text-xs text-red-400">Reset Data Website</h4>
                     <p className="text-xs text-stone-400">
-                      Kembalikan seluruh teks, kontak, dan daftar foto ke pengaturan default awal.
+                      Kembalikan seluruh teks, kontak, galeri foto, dan ulasan ke pengaturan default awal.
                     </p>
                     <button
                       type="button"
@@ -1018,6 +1353,163 @@ export const AdminPanel: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Review Modal Dialog */}
+      {editingReview && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-950/90 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="bg-stone-900 border border-stone-700 rounded-3xl w-full max-w-lg shadow-2xl text-stone-100 overflow-hidden my-auto animate-in zoom-in-95">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-stone-800 flex items-center justify-between bg-stone-950">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500 text-stone-950 flex items-center justify-center font-bold">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-white">Edit Ulasan Pelanggan</h3>
+                  <p className="text-[11px] text-stone-400">
+                    Ubah nama pengirim, rating bintang, dan isi komentar
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setEditingReview(null)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSaveEditReview} className="p-6 space-y-4">
+              {/* Star Rating Picker */}
+              <div className="p-3 rounded-xl bg-stone-950 border border-stone-800 text-center space-y-1.5">
+                <label className="block text-[11px] font-bold text-amber-400 uppercase tracking-wider">
+                  Rating Bintang: {editRevRating} / 5
+                </label>
+                <div className="flex items-center justify-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      onClick={() => setEditRevRating(star)}
+                      className="p-1 text-amber-400 hover:scale-125 transition-transform cursor-pointer"
+                    >
+                      <Star
+                        className={`w-7 h-7 ${
+                          star <= editRevRating
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-stone-700'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-stone-300 font-medium mb-1">
+                    Nama Pengirim (Customer) <span className="text-amber-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editRevName}
+                    onChange={(e) => setEditRevName(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs text-stone-300 font-medium mb-1">
+                    Profesi / Band / Usaha
+                  </label>
+                  <input
+                    type="text"
+                    value={editRevRole}
+                    onChange={(e) => setEditRevRole(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs text-stone-300 font-medium mb-1">
+                    Kategori Layanan
+                  </label>
+                  <select
+                    value={editRevCategory}
+                    onChange={(e) =>
+                      setEditRevCategory(e.target.value as 'studio' | 'box_speaker')
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="studio">Studio Musik</option>
+                    <option value="box_speaker">Custom Box Speaker</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-stone-300 font-medium mb-1">
+                    Tanggal Tampilan
+                  </label>
+                  <input
+                    type="text"
+                    value={editRevDate}
+                    onChange={(e) => setEditRevDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-stone-300 font-medium mb-1">
+                  Isi Ulasan / Testimoni <span className="text-amber-400">*</span>
+                </label>
+                <textarea
+                  rows={4}
+                  value={editRevComment}
+                  onChange={(e) => setEditRevComment(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-700 text-xs text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="edit-verified-check"
+                  checked={editRevVerified}
+                  onChange={(e) => setEditRevVerified(e.target.checked)}
+                  className="rounded border-stone-700 text-amber-500 focus:ring-amber-500"
+                />
+                <label htmlFor="edit-verified-check" className="text-xs text-stone-300 cursor-pointer">
+                  Tandai sebagai Pelanggan Terverifikasi
+                </label>
+              </div>
+
+              {/* Modal Buttons */}
+              <div className="pt-2 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setEditingReview(null)}
+                  className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-lg shadow-amber-500/20"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Simpan Perubahan</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

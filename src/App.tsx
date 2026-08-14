@@ -5,6 +5,7 @@ import { Hero } from './components/Hero';
 import { StudioSection } from './components/StudioSection';
 import { BoxSpeakerSection } from './components/BoxSpeakerSection';
 import { GallerySection } from './components/GallerySection';
+import { ReviewSection } from './components/ReviewSection';
 import { AboutSection } from './components/AboutSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
@@ -32,10 +33,13 @@ export default function App() {
           {/* 4. Galeri Foto */}
           <GallerySection />
 
-          {/* 5. Tentang Usaha & Profil Pemilik */}
+          {/* 5. Ulasan Bintang 5 & Testimoni Pelanggan */}
+          <ReviewSection />
+
+          {/* 6. Tentang Usaha & Profil Pemilik */}
           <AboutSection />
 
-          {/* 6. Lokasi (2 Alamat & Maps) serta Kontak */}
+          {/* 7. Lokasi (2 Alamat & Maps) serta Kontak */}
           <ContactSection />
         </main>
 
@@ -51,3 +55,4 @@ export default function App() {
     </SiteProvider>
   );
 }
+

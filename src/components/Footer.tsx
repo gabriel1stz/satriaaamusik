@@ -51,6 +51,9 @@ export const Footer: React.FC = () => {
             <a href="#gallery-section" className="hover:text-amber-400 transition-colors">
               Galeri
             </a>
+            <a href="#review-section" className="hover:text-amber-400 transition-colors text-amber-400/90">
+              Ulasan Pelanggan
+            </a>
             <a href="#about-section" className="hover:text-amber-400 transition-colors">
               Tentang Kami
             </a>
@@ -58,6 +61,7 @@ export const Footer: React.FC = () => {
               Lokasi & Kontak
             </a>
           </div>
+
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-stone-500">

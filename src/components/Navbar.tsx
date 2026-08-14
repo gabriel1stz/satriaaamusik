@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-stone-300">
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-300">
             <button
               onClick={() => scrollTo('studio-section')}
               className="hover:text-amber-400 transition-colors cursor-pointer"
@@ -56,6 +56,12 @@ export const Navbar: React.FC = () => {
               className="hover:text-amber-400 transition-colors cursor-pointer"
             >
               Galeri
+            </button>
+            <button
+              onClick={() => scrollTo('review-section')}
+              className="hover:text-amber-400 transition-colors cursor-pointer flex items-center gap-1 text-amber-400/90 hover:text-amber-400"
+            >
+              <span>Ulasan ★ 5.0</span>
             </button>
             <button
               onClick={() => scrollTo('about-section')}
@@ -119,6 +125,12 @@ export const Navbar: React.FC = () => {
             Galeri Foto
           </button>
           <button
+            onClick={() => scrollTo('review-section')}
+            className="block w-full text-left py-2 text-amber-400 font-bold text-sm"
+          >
+            Ulasan Pelanggan ★ 5.0
+          </button>
+          <button
             onClick={() => scrollTo('about-section')}
             className="block w-full text-left py-2 text-stone-200 hover:text-amber-400 font-medium text-sm"
           >
@@ -130,6 +142,7 @@ export const Navbar: React.FC = () => {
           >
             Lokasi & Kontak
           </button>
+
           <div className="pt-2">
             <a
               href={waLink}
