@@ -1,0 +1,6 @@
+{
+  "name": "Satria Musik Studio & Custom Box Speaker",
+  "description": "Website profil bisnis & layanan audio profesional untuk Satria Musik Studio & Custom Box Speaker by Aris Satria.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
